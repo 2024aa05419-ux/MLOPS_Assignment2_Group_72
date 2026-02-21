@@ -1,4 +1,4 @@
-# 🐱🐶 Cats vs Dogs Classifier API
+# Cats vs Dogs Classifier API
 
 A production-ready FastAPI application for classifying images as **Cat** or **Dog**, built as part of an MLOps pipeline with CI and Docker support.
 
