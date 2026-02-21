@@ -32,7 +32,7 @@ This project provides:
 ---
 
 ## 📂 Project Structure
-
+```
 .
 ├── app.py # FastAPI application
 ├── model.py # CNN architecture
@@ -43,6 +43,7 @@ This project provides:
 ├── Dockerfile # Docker configuration
 └── .github/workflows/
 └── ci.yml # CI pipeline
+```
 
 
 ---
