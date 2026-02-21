@@ -141,6 +141,8 @@ Example log:
 ```
 
 ### 👨‍💻 Author
+```
 Mohan K R (2024aa05419@wilp.bits-pilani.ac.in)
 Shreyas T S (2024aa05418@wilp.bits-pilani.ac.in)
 Sathwik H R (2024aa05903@wilp.bits-pilani.ac.in)
+```
