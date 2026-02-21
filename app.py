@@ -1,40 +1,79 @@
 import logging
 import time
+import io
 from fastapi import FastAPI, UploadFile, File
 import torch
 from preprocess import load_image
 from model import CNN
-import io
 
-app = FastAPI()
+# ----------------------------
+# Logging Configuration
+# ----------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("catsdogs-api")
+
+# ----------------------------
+# FastAPI App
+# ----------------------------
+app = FastAPI(title="Cats vs Dogs Classifier API")
+
+# ----------------------------
+# Load Model
+# ----------------------------
+logger.info("Loading model...")
 
 model = CNN()
 model.load_state_dict(torch.load("model.pt", map_location=torch.device("cpu")))
 model.eval()
 
+logger.info("Model loaded successfully.")
+
+# ----------------------------
+# Health Endpoint
+# ----------------------------
 @app.get("/health")
 def health():
+    logger.info("Health check endpoint called.")
     return {"status": "healthy"}
 
+# ----------------------------
+# Prediction Endpoint
+# ----------------------------
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    start = time.time()
+    start_time = time.time()
 
-    contents = await file.read()
-    image = load_image(io.BytesIO(contents)).unsqueeze(0)
+    logger.info(f"Received file: {file.filename}")
 
-    with torch.no_grad():
-        output = model(image)
-        probability = float(output.item())
+    try:
+        contents = await file.read()
+        image = load_image(io.BytesIO(contents)).unsqueeze(0)
 
-    label = "dog" if probability > 0.5 else "cat"
+        with torch.no_grad():
+            output = model(image)
+            probability = float(output.item())
 
-    latency = time.time() - start
-    logging.info(f"Prediction latency: {latency:.4f} sec")
+        label = "dog" if probability > 0.5 else "cat"
 
-    return {
-        "probability": probability,
-        "label": label
-    }
+        latency = time.time() - start_time
+
+        logger.info(
+            f"Prediction successful | "
+            f"Label: {label} | "
+            f"Probability: {probability:.4f} | "
+            f"Latency: {latency:.4f} sec"
+        )
+
+        return {
+            "probability": probability,
+            "label": label,
+            "latency_sec": round(latency, 4)
+        }
+
+    except Exception as e:
+        logger.error(f"Prediction failed: {str(e)}")
+        return {"error": "Prediction failed"}
